@@ -18,7 +18,7 @@ This repository contains code used to process the data and generate all figures 
 
 Each script loads class `config.py` which load the `config.yml` master configuration file and return the dictonary with all necessary parameters and paths. Each script across the repository loads dictionary with all the paths from this class.
 
-`config.yml` master configuration file paths:<br>
+Master configuration `config.yml`:<br>
 input_dir - input data<br>
 analysis_dir - output folder for `scripts/analysis` organised per chapter.<br>
 figures_dir - output folder for `scripts/figures` organised per chapter.<br>
