@@ -1,18 +1,20 @@
-# Overview
+## Overview
 This repository contains code used to process the data and generate all figures used in the PhD thesis titled "XXX" by Janusz Koszucki. Code is organised to reflect scripts that are used in each of the corresponding chapters.
 
-# Repository Structure
+## Repository Structure
 
+```
 .
 ├── config
-│	└── config.yml		# Master configuration file
+│   └── config.yml      # Master configuration file
 ├── README.md
 └── scripts
-    ├── analysis		# Data processing scripts
-    ├── figures			# Scritps generating figures
-    └── helpers			# Helper scripts
+    ├── analysis        # Data processing scripts
+    ├── figures         # Scripts generating figures
+    └── helpers         # Helper scripts
+```
 
-# Config
+## Config
 
 Each script loads class `config.py` which load the `config.yml` master configuration file and return the dictonary with all necessary parameters and paths. Each script across the repository loads dictionary with all the paths from this class.
 
@@ -33,7 +35,7 @@ Contains the code used to generate all figures in the PhD thesis titled “XXX�
 
 
 
-# Details
+## Details
 
 `/Users/januszkoszucki/Projects/thesis-claude/other/docs` - Documents submitted to doctoral school for extension of the PhD Thesis (eg, the schedule and plan analyses), PhD theses of other people along with the documents.
 `/Users/januszkoszucki/Projects/thesis-claude/other/literature` - Reference publications which will be used to insert references in the PhD thesis.
