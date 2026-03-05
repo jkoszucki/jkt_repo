@@ -1,4 +1,17 @@
 paths:
-	input_dir: /Users/januszkoszucki/Documents/thesis-claude/data/input
-	analysis_dir: /Users/januszkoszucki/Documents/thesis-claude/data/output/analysis
-	figures_dir: /Users/januszkoszucki/Documents/thesis-claude/data/output/figures
+  input_dir:  /Users/januszkoszucki/Projects/thesis-claude/data/input
+  output_dir: /Users/januszkoszucki/Projects/thesis-claude/data/output/analysis
+
+style:
+  dpi: 300
+  axis_label_fontsize: 12
+  axis_label_fontweight: bold
+  tick_fontsize: 8
+  tick_fontweight: bold
+  kpam_color: "#1f77b4"
+  lit_color: "#d62728"
+  pyruvylation_color: "#3283bf"
+  acetylation_color: "#d45515"
+  both_color: "#7A3FD4"
+  gray_color: "#bfbfbf"
+
