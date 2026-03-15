@@ -2,6 +2,9 @@ paths:
   input_dir:  /Users/januszkoszucki/Projects/thesis-claude/data/input
   output_dir: /Users/januszkoszucki/Projects/thesis-claude/data/output/analysis
 
+analysis:
+  network_cutoff: 0.5
+
 style:
   dpi: 300
   axis_label_fontsize: 12

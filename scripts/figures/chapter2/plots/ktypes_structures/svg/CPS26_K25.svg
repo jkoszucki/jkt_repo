@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-03-04T14:41:09.913447</dc:date>
+    <dc:date>2026-03-12T11:30:49.126638</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -48,7 +48,7 @@ C 292.257884 375.082493 289.76 381.112919 289.76 387.4
 C 289.76 393.687081 292.257884 399.717507 296.703522 404.163145 
 C 301.14916 408.608783 307.179585 411.106667 313.466667 411.106667 
 z
-" clip-path="url(#p4e613f1372)" style="fill: #4ea3ff; stroke: #000000; stroke-width: 3; stroke-linejoin: miter"/>
+" clip-path="url(#p9856c3622e)" style="fill: #4ea3ff; stroke: #000000; stroke-width: 3; stroke-linejoin: miter"/>
    </g>
    <g id="patch_4">
     <path d="M 432 411.106667 
@@ -61,7 +61,7 @@ C 410.791217 375.082493 408.293333 381.112919 408.293333 387.4
 C 408.293333 393.687081 410.791217 399.717507 415.236855 404.163145 
 C 419.682493 408.608783 425.712919 411.106667 432 411.106667 
 z
-" clip-path="url(#p4e613f1372)" style="fill: #ffbf00; stroke: #000000; stroke-width: 3; stroke-linejoin: miter"/>
+" clip-path="url(#p9856c3622e)" style="fill: #ffbf00; stroke: #000000; stroke-width: 3; stroke-linejoin: miter"/>
    </g>
    <g id="patch_5">
     <path d="M 360.88 292.573333 
@@ -74,7 +74,7 @@ C 339.671217 256.54916 337.173333 262.579585 337.173333 268.866667
 C 337.173333 275.153748 339.671217 281.184173 344.116855 285.629811 
 C 348.562493 290.075449 354.592919 292.573333 360.88 292.573333 
 z
-" clip-path="url(#p4e613f1372)" style="fill: #4ea3ff; stroke: #000000; stroke-width: 3; stroke-linejoin: miter"/>
+" clip-path="url(#p9856c3622e)" style="fill: #4ea3ff; stroke: #000000; stroke-width: 3; stroke-linejoin: miter"/>
    </g>
    <g id="patch_6">
     <path d="M 360.88 274.793333 
@@ -87,7 +87,7 @@ C 355.577804 265.78729 354.953333 267.294896 354.953333 268.866667
 C 354.953333 270.438437 355.577804 271.946043 356.689214 273.057453 
 C 357.800623 274.168862 359.30823 274.793333 360.88 274.793333 
 z
-" clip-path="url(#p4e613f1372)" style="fill: #ffffff; stroke: #ffffff; stroke-width: 2; stroke-linejoin: miter"/>
+" clip-path="url(#p9856c3622e)" style="fill: #ffffff; stroke: #ffffff; stroke-width: 2; stroke-linejoin: miter"/>
    </g>
    <g id="patch_7">
     <path d="M 360.88 174.04 
@@ -100,15 +100,15 @@ C 339.671217 138.015827 337.173333 144.046252 337.173333 150.333333
 C 337.173333 156.620415 339.671217 162.65084 344.116855 167.096478 
 C 348.562493 171.542116 354.592919 174.04 360.88 174.04 
 z
-" clip-path="url(#p4e613f1372)" style="fill: #4ea3ff; stroke: #000000; stroke-width: 3; stroke-linejoin: miter"/>
+" clip-path="url(#p9856c3622e)" style="fill: #4ea3ff; stroke: #000000; stroke-width: 3; stroke-linejoin: miter"/>
    </g>
    <g id="matplotlib.axis_1"/>
    <g id="matplotlib.axis_2"/>
    <g id="line2d_1">
     <path d="M 432 387.4 
-" clip-path="url(#p4e613f1372)" style="fill: none; stroke: #000000; stroke-width: 1.5; stroke-linecap: square"/>
+" clip-path="url(#p9856c3622e)" style="fill: none; stroke: #000000; stroke-width: 1.5; stroke-linecap: square"/>
     <defs>
-     <path id="meb0db352f0" d="M 0 1.4 
+     <path id="ma11614557f" d="M 0 1.4 
 C 0.371284 1.4 0.727412 1.252487 0.989949 0.989949 
 C 1.252487 0.727412 1.4 0.371284 1.4 0 
 C 1.4 -0.371284 1.252487 -0.727412 0.989949 -0.989949 
@@ -120,8 +120,8 @@ C -0.727412 1.252487 -0.371284 1.4 0 1.4
 z
 " style="stroke: #000000"/>
     </defs>
-    <g clip-path="url(#p4e613f1372)">
-     <use xlink:href="#meb0db352f0" x="432" y="387.4" style="stroke: #000000"/>
+    <g clip-path="url(#p9856c3622e)">
+     <use xlink:href="#ma11614557f" x="432" y="387.4" style="stroke: #000000"/>
     </g>
    </g>
    <g id="text_1">
@@ -664,7 +664,7 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="p4e613f1372">
+  <clipPath id="p9856c3622e">
    <rect x="135.666667" y="31.8" width="592.666667" height="533.4"/>
   </clipPath>
  </defs>

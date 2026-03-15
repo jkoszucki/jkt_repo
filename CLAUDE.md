@@ -153,9 +153,24 @@ Modules inside `lib/` import each other using plain names (e.g. `from ktypes_bas
 
 ---
 
+## Playground
+
+For any quick analysis, benchmark, exploration, or ad-hoc script that is not part of the main pipeline, create a timestamped subfolder inside `/Users/januszkoszucki/Projects/thesis-claude/data/playground/` and work there. Do **not** use `/tmp` or scatter files across the repository.
+
+```
+/Users/januszkoszucki/Projects/thesis-claude/data/playground/
+└── YYYYMMDD_short_description/
+    ├── script.py   (or notebook, etc.)
+    └── ...
+```
+
+This applies to anything triggered by phrases like "quick analysis", "benchmark", "check", "explore", "test", "compare", etc.
+
+---
+
 ## Figure captions
 
-Captions follow the style of the manuscript (Otwinowska et al., *Nature Communications*). Apply these rules whenever writing or editing a figure caption.
+Captions follow the style of the manuscript (Otwinowska et al., *PLOS Biology*). Apply these rules whenever writing or editing a figure caption.
 
 ### Structure
 ```

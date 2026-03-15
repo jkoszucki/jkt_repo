@@ -46,6 +46,9 @@ class Config:
             both_color=s.get("both_color", "#DC143C"),
         )
 
+        a = data.get("analysis", {})
+        self.network_cutoff = float(a.get("network_cutoff", 0.5))
+
         self._check_analysis_readmes()
 
     def _check_analysis_readmes(self):

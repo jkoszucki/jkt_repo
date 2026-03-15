@@ -92,23 +92,47 @@ def _assemble_core_fields(monos: Sequence[str], bonds: Sequence[str]) -> Dict[st
     }
 
 
-def _path_fingerprint(monos: list[str], bonds: list[str]) -> frozenset[tuple]:
-    """All bidirectional contiguous subpaths from a linear mono/bond sequence."""
+def _path_fingerprint(monos: list[str], bonds: list[str], circular: bool = False) -> frozenset[tuple]:
+    """All bidirectional contiguous subpaths from a mono/bond sequence.
+
+    If circular=True and len(bonds) == len(monos), the sequence is treated as a
+    cyclic ring: subpaths that cross the end→start boundary are included by
+    extending the sequence to length 2n and taking all windows of length 1…n.
+    """
     paths: set[tuple] = set()
     n = len(monos)
-    for start in range(n):
-        for end in range(start + 1, n + 1):
-            seg_m = tuple(monos[start:end])
-            seg_b = tuple(bonds[start:end - 1])
-            # interleave: (m0, b0, m1, b1, ..., mk)
-            elems: list = []
-            for i, m in enumerate(seg_m):
-                elems.append(m)
-                if i < len(seg_b):
-                    elems.append(seg_b[i])
-            fwd = tuple(elems)
-            paths.add(fwd)
-            paths.add(fwd[::-1])
+    if n == 0:
+        return frozenset()
+
+    if circular and len(bonds) == n:
+        monos_ext = list(monos) + list(monos)
+        bonds_ext = list(bonds) + list(bonds)
+        for start in range(n):
+            for length in range(1, n + 1):
+                end = start + length
+                seg_m = tuple(monos_ext[start:end])
+                seg_b = tuple(bonds_ext[start:end - 1])
+                elems: list = []
+                for i, m in enumerate(seg_m):
+                    elems.append(m)
+                    if i < len(seg_b):
+                        elems.append(seg_b[i])
+                fwd = tuple(elems)
+                paths.add(fwd)
+                paths.add(fwd[::-1])
+    else:
+        for start in range(n):
+            for end in range(start + 1, n + 1):
+                seg_m = tuple(monos[start:end])
+                seg_b = tuple(bonds[start:end - 1])
+                elems: list = []
+                for i, m in enumerate(seg_m):
+                    elems.append(m)
+                    if i < len(seg_b):
+                        elems.append(seg_b[i])
+                fwd = tuple(elems)
+                paths.add(fwd)
+                paths.add(fwd[::-1])
     return frozenset(paths)
 
 
@@ -462,45 +486,48 @@ class KTypeTablesAPI(BaseKTypeAPI):
             return float(np.dot(ws_arr, np.array(xs)))
 
         W_COMP, W_PAIR, W_BOND = 0.60, 0.25, 0.15
-        ktypes = [str(k) for k in processed["K_type"].tolist()]
-        structure_id_map = (
-            {str(r["K_type"]): str(r["structure_id"]) for _, r in processed.iterrows()}
-            if "structure_id" in processed.columns else {}
-        )
 
-        monos_core = {row["K_type"]: to_set(row["core_monos_unique"]) for _, row in processed.iterrows()}
+        # Use structure_id as the primary key so that structures sharing the same
+        # K_type (e.g. CPS2_K2 and CPS78_K2_NTUH_A4528) are each treated as a
+        # distinct entry rather than silently overwriting each other.
+        id_col = "structure_id" if "structure_id" in processed.columns else "K_type"
+        ids = [str(r) for r in processed[id_col].tolist()]
+        id_to_ktype = {str(row[id_col]): str(row["K_type"]) for _, row in processed.iterrows()}
+
+        monos_core = {str(row[id_col]): to_set(row["core_monos_unique"]) for _, row in processed.iterrows()}
         monos_branch = {
-            row["K_type"]: to_set(row["branch_monos_unique"]) for _, row in processed.iterrows()
+            str(row[id_col]): to_set(row["branch_monos_unique"]) for _, row in processed.iterrows()
         }
-        pairs_core = {row["K_type"]: to_set(row["core_pairs"]) for _, row in processed.iterrows()}
+        pairs_core = {str(row[id_col]): to_set(row["core_pairs"]) for _, row in processed.iterrows()}
         pairs_branch = {
-            row["K_type"]: to_set(row["branch_pairs"]) for _, row in processed.iterrows()
+            str(row[id_col]): to_set(row["branch_pairs"]) for _, row in processed.iterrows()
         }
         bonds_core = {
-            row["K_type"]: to_set(row["core_bonds_unique"]) for _, row in processed.iterrows()
+            str(row[id_col]): to_set(row["core_bonds_unique"]) for _, row in processed.iterrows()
         }
         bonds_branch = {
-            row["K_type"]: to_set(row["branch_bonds_unique"]) for _, row in processed.iterrows()
+            str(row[id_col]): to_set(row["branch_bonds_unique"]) for _, row in processed.iterrows()
         }
 
         monos_total = {k: monos_core[k] | monos_branch[k] for k in monos_core}
         pairs_total = {k: pairs_core[k] | pairs_branch[k] for k in pairs_core}
         bonds_total = {k: bonds_core[k] | bonds_branch[k] for k in bonds_core}
 
-        core_fps = {k: _path_fingerprint(
-            [m for m in str(processed.loc[processed.K_type == k, "core_monos_all"].iloc[0]).split("; ") if m],
-            [b for b in str(processed.loc[processed.K_type == k, "core_bonds_all"].iloc[0]).split("; ") if b],
-        ) for k in ktypes}
         _branch_col = next((c for c in processed.columns if c.lower() in {"branch", "branches"}), None)
-        branch_fps = {k: _branch_path_fingerprint(
-            processed.loc[processed.K_type == k, _branch_col].iloc[0] if _branch_col else ""
-        ) for k in ktypes}
-        total_fps = {k: core_fps[k] | branch_fps[k] for k in ktypes}
+        core_fps = {sid: _path_fingerprint(
+            [m for m in str(processed.loc[processed[id_col] == sid, "core_monos_all"].iloc[0]).split("; ") if m],
+            [b for b in str(processed.loc[processed[id_col] == sid, "core_bonds_all"].iloc[0]).split("; ") if b],
+            circular=True,
+        ) for sid in ids}
+        branch_fps = {sid: _branch_path_fingerprint(
+            processed.loc[processed[id_col] == sid, _branch_col].iloc[0] if _branch_col else ""
+        ) for sid in ids}
+        total_fps = {sid: core_fps[sid] | branch_fps[sid] for sid in ids}
 
         rows = []
-        for i in range(len(ktypes)):
-            for j in range(i + 1, len(ktypes)):
-                a, b = ktypes[i], ktypes[j]
+        for i in range(len(ids)):
+            for j in range(i + 1, len(ids)):
+                a, b = ids[i], ids[j]
 
                 comp_core = jaccard(monos_core[a], monos_core[b])
                 comp_branch = jaccard(
@@ -532,64 +559,10 @@ class KTypeTablesAPI(BaseKTypeAPI):
 
                 rows.append(
                     {
-                        "structure_id_1": structure_id_map.get(a, a),
-                        "structure_id_2": structure_id_map.get(b, b),
-                        "K_type_1": a,
-                        "K_type_2": b,
-                        "comp_core_set_1": join_sorted(monos_core[a]),
-                        "comp_core_set_2": join_sorted(monos_core[b]),
-                        "comp_branch_set_1": join_sorted(monos_branch[a]),
-                        "comp_branch_set_2": join_sorted(monos_branch[b]),
-                        "comp_total_set_1": join_sorted(monos_total[a]),
-                        "comp_total_set_2": join_sorted(monos_total[b]),
-                        "pair_core_set_1": join_sorted(pairs_core[a]),
-                        "pair_core_set_2": join_sorted(pairs_core[b]),
-                        "pair_branch_set_1": join_sorted(pairs_branch[a]),
-                        "pair_branch_set_2": join_sorted(pairs_branch[b]),
-                        "pair_total_set_1": join_sorted(pairs_total[a]),
-                        "pair_total_set_2": join_sorted(pairs_total[b]),
-                        "bond_core_set_1": join_sorted(bonds_core[a]),
-                        "bond_core_set_2": join_sorted(bonds_core[b]),
-                        "bond_branch_set_1": join_sorted(bonds_branch[a]),
-                        "bond_branch_set_2": join_sorted(bonds_branch[b]),
-                        "bond_total_set_1": join_sorted(bonds_total[a]),
-                        "bond_total_set_2": join_sorted(bonds_total[b]),
-                        "composition_sim_core_jc": None
-                        if pd.isna(comp_core)
-                        else round(float(comp_core), 3),
-                        "pair_residues_sim_core_jc": None
-                        if pd.isna(pair_core)
-                        else round(float(pair_core), 3),
-                        "bond_sim_core_jc": None
-                        if pd.isna(bond_core)
-                        else round(float(bond_core), 3),
-                        "composition_sim_branch_jc": None
-                        if pd.isna(comp_branch)
-                        else round(float(comp_branch), 3),
-                        "pair_residues_sim_branch_jc": None
-                        if pd.isna(pair_branch)
-                        else round(float(pair_branch), 3),
-                        "bond_sim_branch_jc": None
-                        if pd.isna(bond_branch)
-                        else round(float(bond_branch), 3),
-                        "composition_sim_total_jc": None
-                        if pd.isna(comp_total)
-                        else round(float(comp_total), 3),
-                        "pair_residues_sim_total_jc": None
-                        if pd.isna(pair_total)
-                        else round(float(pair_total), 3),
-                        "bond_sim_total_jc": None
-                        if pd.isna(bond_total)
-                        else round(float(bond_total), 3),
-                        "weighted_core": None
-                        if pd.isna(weighted_core)
-                        else round(float(weighted_core), 3),
-                        "weighted_branch": None
-                        if pd.isna(weighted_branch)
-                        else round(float(weighted_branch), 3),
-                        "weighted_total": None
-                        if pd.isna(weighted_total)
-                        else round(float(weighted_total), 3),
+                        "structure_id_1": a,
+                        "structure_id_2": b,
+                        "K_type_1": id_to_ktype.get(a, a),
+                        "K_type_2": id_to_ktype.get(b, b),
                         "path_core_set_1": join_fps(core_fps[a]),
                         "path_core_set_2": join_fps(core_fps[b]),
                         "path_branch_set_1": join_fps(branch_fps[a]),
@@ -604,7 +577,10 @@ class KTypeTablesAPI(BaseKTypeAPI):
                     }
                 )
 
-        return pd.DataFrame(rows)
+        sim_df = pd.DataFrame(rows)
+        if "structure_id_1" in sim_df.columns and "structure_id_2" in sim_df.columns:
+            sim_df = sim_df[sim_df["structure_id_1"] != sim_df["structure_id_2"]]
+        return sim_df
 
     def export_similarity_table(
         self, df: Optional[pd.DataFrame] = None, filename: Optional[str] = None

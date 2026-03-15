@@ -11,8 +11,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "helpers"))
 from branch_core_heatmap import plot_branch_core_heatmap
 from composition_groups import plot_composition_groups
 from config import Config
+from cytoscape_export import export_cytoscape
+from jp_heatmap import plot_jp_heatmap
+from jp_scatter import plot_jp_scatter
 from ktypes_draw import KTypeStructureDrawer
 from ktypes_plots import KTypePlotAPI
+from figure2_table import plot_figure2_table
 from mod_freq import plot_modification_frequency
 from mw_hist import plot_mw_hist
 
@@ -61,16 +65,12 @@ def main() -> None:
     )
 
     plot_api.plot_similarity_histogram(
-        output_path=plots_dir / "score_hist.png", column="weighted_total", bins=40, show=False
+        output_path=plots_dir / "score_hist.png", column="path_jaccard_total", bins=40, show=False
     )
 
     plot_api.plot_modification_and_monosaccharide_distribution(
         output_path=plots_dir / "mono_prevalence.png",
         show=False,
-    )
-
-    plot_api.export_similarity_network(
-        output_path=plots_dir / "ktypes_network_THR90.csv", min_weighted_core=0.9
     )
 
     ### QUICK PLOTS
@@ -94,6 +94,32 @@ def main() -> None:
     plot_modification_frequency(
         modifications_csv=modifications_csv,
         output_path=plots_dir / "modification_freq.png",
+        style=cfg.style,
+    )
+
+    plot_jp_scatter(
+        similarity_csv=similarity_csv,
+        output_path=plots_dir / "jp_scatter.png",
+        style=cfg.style,
+    )
+
+    plot_jp_heatmap(
+        similarity_csv=similarity_csv,
+        output_path=plots_dir / "jp_heatmap.png",
+        style=cfg.style,
+    )
+
+    export_cytoscape(
+        similarity_csv=similarity_csv,
+        ktypes_csv=processed_csv,
+        modifications_csv=modifications_csv,
+        output_dir=plots_dir / "cytoscape",
+        style=cfg.style,
+    )
+
+    plot_figure2_table(
+        input_xlsx=cfg.input_dir / "cps.xlsx",
+        output_path=plots_dir / "figure2_table.png",
         style=cfg.style,
     )
 

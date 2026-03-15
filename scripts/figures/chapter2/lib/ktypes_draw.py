@@ -1238,7 +1238,7 @@ class KTypeStructureDrawer:
         return written
 
     def draw_single(self, row: pd.Series, stem_name: Optional[str] = None) -> tuple[bool, list[Path]]:
-        stem = (stem_name or str(row.get("K_type", "K?"))).replace("/", "_").replace(" ", "_")
+        stem = (stem_name or str(row.get("structure_id", row.get("K_type", "K?")))).replace("/", "_").replace(" ", "_")
         core_list = parse_core_positions(row.get("core_positions", ""))
         if not core_list:
             return False, []
