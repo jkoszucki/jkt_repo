@@ -23,12 +23,12 @@ from mw_hist import plot_mw_hist
 
 def main() -> None:
     cfg = Config()
-    chapter2_output_dir = cfg.output_dir / "chapter2"
+    chapter3_output_dir = cfg.output_dir / "chapter3"
     chapter2_dir = Path(__file__).resolve().parent
 
-    processed_csv = chapter2_output_dir / "ktypes.csv"
-    similarity_csv = chapter2_output_dir / "ktypes_sim.csv"
-    modifications_csv = chapter2_output_dir / "ktypes_modifications.csv"
+    processed_csv = chapter3_output_dir / "ktypes.csv"
+    similarity_csv = chapter3_output_dir / "ktypes_sim.csv"
+    modifications_csv = chapter3_output_dir / "ktypes_modifications.csv"
 
     plots_dir = chapter2_dir / "plots"
     plots_dir.mkdir(parents=True, exist_ok=True)

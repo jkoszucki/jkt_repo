@@ -28,8 +28,8 @@ Instructions for the AI-agent.
 
 `scripts/` is split into two categories:
 
-- `analysis/` — reads raw input, produces CSV tables to `cfg.output_dir / "chapterX"`
-- `figures/` — reads those CSVs, writes plots to `scripts/figures/chapterX/plots/`
+- `analysis/` — reads raw input, produces outputs to `cfg.output_dir / "chapterX"`
+- `figures/` — reads those outputs, writes plots to `scripts/figures/chapterX/plots/`
 
 ### Where outputs go
 
@@ -38,7 +38,7 @@ Instructions for the AI-agent.
 | `analysis/chapterX/` | `cfg.input_dir` | `cfg.output_dir / "chapterX"` (external) |
 | `figures/chapterX/` | `cfg.output_dir / "chapterX"` | `scripts/figures/chapterX/plots/` (in-repo) |
 
-Analysis outputs (CSV tables) go **outside** the repository to `output_dir`.
+Analysis outputs go **outside** the repository to `output_dir`. Outputs are typically CSV tables, but may be other formats — e.g. chapter 2 writes GenBank files directly to `input_dir/gwas/4_K_LOCI/`.
 Figure outputs (plots) go **inside** the repository, next to the script that produced them.
 
 ### figures/ subdirectory convention
@@ -91,9 +91,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "helpers"))
 from config import Config
 
 cfg = Config()
-# cfg.input_dir  — raw input data
-# cfg.output_dir — analysis CSV output root; chapter subdirs live directly here
-# cfg.style      — Style dataclass with shared plot settings
+# cfg.input_dir        — raw input data
+# cfg.output_dir       — analysis output root; chapter subdirs live directly here
+# cfg.style            — Style dataclass with shared plot settings
+# cfg.network_cutoff   — float, similarity network threshold (default 0.5)
 ```
 
 `Config` reads `config/config.yml`:
@@ -102,19 +103,23 @@ cfg = Config()
 paths:
   input_dir:  /path/to/data/input
   output_dir: /path/to/data/output/analysis
+  gwas_dir:   /path/to/gwas/data
+
+analysis:
+  network_cutoff: 0.5
 
 style:
-  dpi: 200
+  dpi: 300
   axis_label_fontsize: 12
   axis_label_fontweight: bold
   tick_fontsize: 8
   tick_fontweight: bold
   kpam_color: "#1f77b4"
   lit_color: "#d62728"
-  pyruvylation_color: "#4f81bd"
-  acetylation_color: "#f2c94c"
+  pyruvylation_color: "#3283bf"
+  acetylation_color: "#d45515"
   gray_color: "#bfbfbf"
-  both_color: "#DC143C"
+  both_color: "#7A3FD4"
 ```
 
 Analysis scripts write to `cfg.output_dir / "chapterX"`.
@@ -149,7 +154,18 @@ Modules inside `lib/` import each other using plain names (e.g. `from ktypes_bas
 
 ## Figure scripts are standalone
 
-`figures/chapterX/lib/` modules have **zero imports from `analysis/`**. All inputs are CSV paths passed as arguments. `figures/chapter2/main.py` can be run any time after `analysis/chapter2/main.py` has produced its CSVs.
+`figures/chapterX/lib/` modules have **zero imports from `analysis/`**. All inputs are paths passed as arguments. `figures/chapter3/main.py` can be run any time after `analysis/chapter3/main.py` has produced its CSVs.
+
+---
+
+## Environment
+
+Scripts must be run in the appropriate conda environment:
+
+| Script | Environment |
+|--------|-------------|
+| Most scripts | `conda run -n jkoszucki python main.py` |
+| `analysis/chapter2/` (requires Kaptive v3) | `conda run -n kaptive python main.py` |
 
 ---
 

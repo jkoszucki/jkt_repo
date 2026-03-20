@@ -1,37 +1,30 @@
-# Chapter 2 — Analysis
+# Chapter 2 — K-locus extraction
 
-Processes the CPS (capsule polysaccharide) structure dataset and exports three CSV tables used downstream by `scripts/figures/chapter2/`.
+Extracts the K-locus genomic region from annotated GenBank assemblies for 3,911 *Klebsiella pneumoniae* genomes.
 
-## Input
+## Overview
 
-| File | Path |
-|---|---|
-| CPS structure workbook | `input_dir/cps.xlsx` |
+**Phase 1** — Kaptive v3 (`kaptive assembly kpsc_k`) is run on all FASTA assemblies to identify K-locus coordinates (contig, start, end).
 
-Sheets used: `ktypes`, `modifications`.
+**Phase 2** — For each sample, the detected region is sliced from the corresponding GenBank file using Biopython, preserving all CDS annotations within the locus. Multi-contig loci are concatenated. Samples with no detected locus produce a 0-byte placeholder file.
 
-## Outputs
+## Input data
 
-Written to `output_dir/analysis/chapter2/`:
+| Path | Description |
+|------|-------------|
+| `input_dir/gwas/1_BACTERIA/1_GENBANK_GENOMES/*.gb` | Prokka-annotated GenBank files (one per assembly) |
+| `input_dir/gwas/1_BACTERIA/2_FASTA_GENOMES_NT/*.fasta` | FASTA assemblies (one per assembly) |
 
-| File | Description |
-|---|---|
-| `ktypes.csv` | Processed K-type table with parsed core/branch fields, bond types, and monosaccharide composition |
-| `ktypes_modifications.csv` | Raw modifications table (OAc, OPy, etc.) per K-type |
-| `ktypes_sim.csv` | Pairwise Jaccard similarity scores across all K-type pairs |
+## Output
 
-## Run
+| Path | Description |
+|------|-------------|
+| `output_dir/chapter2/kaptive_results.jsonl` | Kaptive JSON Lines output (one record per sample) |
+| `input_dir/gwas/4_K_LOCI/*.gb` | Extracted K-locus GenBank files; 0-byte if no locus detected |
 
-```
-conda run -n jkoszucki python scripts/analysis/chapter2/main.py
-```
+The LOCUS name in each output `.gb` file encodes the sample and K-locus type (e.g., `1001KBV_KL22`).
 
-## Library modules (`lib/`)
+## Notes
 
-| Module | Class | Role |
-|---|---|---|
-| `ktypes_base.py` | `BaseKTypeAPI` | XLSX loader base class; sheet caching |
-| `ktypes_process.py` | `KTypeTablesAPI` | Parses backbone and branch linkages; computes Jaccard similarity |
-| `ktypes_modifications.py` | `KTypeModificationsAPI` | Exports the modifications sheet |
-| `ktypes_similarity.py` | `KTypeSimilarityAPI` | Thin wrapper for similarity export |
-| `kpam_get.py` | — | Standalone script to download PDB files from K-PAM |
+- Requires `conda env kaptive` (Kaptive v3). Run via `conda run -n kaptive python main.py`.
+- K-loci output is written to `input_dir/gwas/4_K_LOCI/` rather than `output_dir` because it serves as input for downstream GWAS analysis.
