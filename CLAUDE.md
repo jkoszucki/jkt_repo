@@ -10,6 +10,8 @@ Instructions for the AI-agent.
 ├── README.md
 ├── config/
 │   └── config.yml          ← master configuration file
+├── other/
+│   └── klocus_extraction/  ← standalone data preparation (not part of any chapter)
 └── scripts/
     ├── analysis/
     │   └── chapterX/
@@ -25,6 +27,14 @@ Instructions for the AI-agent.
     └── helpers/
         └── config.py
 ```
+
+## Chapter structure overview
+
+| Chapter | Scope |
+|---------|-------|
+| chapter1 | Introduction |
+| chapter2 | GWAS analysis — pyseer hit filtering, best predictor selection |
+| chapter3 | CPS analysis — K-type diversity, modifications, similarity |
 
 `scripts/` is split into two categories:
 
@@ -165,7 +175,7 @@ Scripts must be run in the appropriate conda environment:
 | Script | Environment |
 |--------|-------------|
 | Most scripts | `conda run -n jkoszucki python main.py` |
-| `analysis/chapter2/` (requires Kaptive v3) | `conda run -n kaptive python main.py` |
+| `other/klocus_extraction/` (requires Kaptive v3) | `conda run -n kaptive python main.py` |
 
 ---
 

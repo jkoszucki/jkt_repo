@@ -1,30 +1,23 @@
-# Chapter 2 — K-locus extraction
+# Chapter 2 — GWAS analysis
 
-Extracts the K-locus genomic region from annotated GenBank assemblies for 3,911 *Klebsiella pneumoniae* genomes.
+Selects the best prophage-PC predictor per K-locus from pyseer GWAS results.
 
-## Overview
+## Filtering logic
 
-**Phase 1** — Kaptive v3 (`kaptive assembly kpsc_k`) is run on all FASTA assemblies to identify K-locus coordinates (contig, start, end).
-
-**Phase 2** — For each sample, the detected region is sliced from the corresponding GenBank file using Biopython, preserving all CDS annotations within the locus. Multi-contig loci are concatenated. Samples with no detected locus produce a 0-byte placeholder file.
+1. Keep rows with `precision ≥ 0.8`
+2. For each K-locus, retain the single `(PC, version)` combination with the highest `F1 × MCC` product across all clustering thresholds (`version`)
+3. Keep only loci where `F1 ≥ 0.5` and `MCC ≥ 0.5`
 
 ## Input data
 
-| Path | Description |
+| File | Description |
 |------|-------------|
-| `input_dir/gwas/1_BACTERIA/1_GENBANK_GENOMES/*.gb` | Prokka-annotated GenBank files (one per assembly) |
-| `input_dir/gwas/1_BACTERIA/2_FASTA_GENOMES_NT/*.fasta` | FASTA assemblies (one per assembly) |
+| `input_dir/gwas/3_GWAS/3_PROCESSING/pyseer_hits_all.tsv` | All pyseer hits across clustering thresholds (~235k rows) |
 
 ## Output
 
-| Path | Description |
+| File | Description |
 |------|-------------|
-| `output_dir/chapter2/kaptive_results.jsonl` | Kaptive JSON Lines output (one record per sample) |
-| `input_dir/gwas/4_K_LOCI/*.gb` | Extracted K-locus GenBank files; 0-byte if no locus detected |
-
-The LOCUS name in each output `.gb` file encodes the sample and K-locus type (e.g., `1001KBV_KL22`).
-
-## Notes
-
-- Requires `conda env kaptive` (Kaptive v3). Run via `conda run -n kaptive python main.py`.
-- K-loci output is written to `input_dir/gwas/4_K_LOCI/` rather than `output_dir` because it serves as input for downstream GWAS analysis.
+| `output_dir/chapter2/best_predictors.csv` | One row per K-locus passing all filters |
+| `output_dir/chapter2/grr_results.csv` | All-vs-all pairwise wGRR for 3,911 K-loci (columns: sample1, sample2, wgrr, grr_sum, genes1, genes2, bbh, min35, min80) |
+| `output_dir/chapter2/grr_workdir/` | Intermediate files (per-isolate .faa, merged FASTA, BLAST DB, BLAST TSV); safe to delete after `grr_results.csv` is written |

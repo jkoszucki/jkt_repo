@@ -5,15 +5,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "helpers"))
 
 from config import Config
-from klocus_extraction import KLocusExtractor
+from gwas_predictor_selection import select_best_predictors
+from klocus_grr import compute_klocus_grr
 
 cfg = Config()
 
-genbank_dir = cfg.input_dir / "gwas/1_BACTERIA/1_GENBANK_GENOMES"
-fasta_dir   = cfg.input_dir / "gwas/1_BACTERIA/2_FASTA_GENOMES_NT"
-kloci_dir   = cfg.input_dir / "gwas/4_K_LOCI"
-jsonl_path  = cfg.output_dir / "chapter2" / "kaptive_results.jsonl"
+table_path  = cfg.input_dir / "gwas/3_GWAS/3_PROCESSING/pyseer_hits_all.tsv"
+mmseqs_dir  = cfg.input_dir / "gwas/3_GWAS/1_INTERMEDIATE/2_MMSEQS"
+k_loci_dir  = cfg.input_dir / "gwas/4_K_LOCI"
+output_dir  = cfg.output_dir / "chapter2"
 
-extractor = KLocusExtractor(genbank_dir, fasta_dir, kloci_dir, jsonl_path)
-extractor.run_kaptive()
-extractor.extract()
+select_best_predictors(table_path, mmseqs_dir, output_dir)
+compute_klocus_grr(k_loci_dir, output_dir)

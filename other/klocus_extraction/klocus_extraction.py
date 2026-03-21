@@ -10,8 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-_LIB_DIR = Path(__file__).resolve().parent
-_HELPERS_DIR = _LIB_DIR.parents[2] / "helpers"
+_HELPERS_DIR = Path(__file__).resolve().parents[2] / "scripts" / "helpers"
 
 from Bio import SeqIO
 
@@ -131,7 +130,7 @@ if __name__ == "__main__":
         genbank_dir = cfg.input_dir / "gwas/1_BACTERIA/1_GENBANK_GENOMES",
         fasta_dir   = cfg.input_dir / "gwas/1_BACTERIA/2_FASTA_GENOMES_NT",
         kloci_dir   = cfg.input_dir / "gwas/4_K_LOCI",
-        jsonl_path  = cfg.output_dir / "chapter2" / "kaptive_results.jsonl",
+        jsonl_path  = cfg.output_dir / "preparation" / "kaptive_results.jsonl",
     )
     extractor.run_kaptive()
     extractor.extract()
