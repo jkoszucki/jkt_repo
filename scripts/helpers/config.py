@@ -16,6 +16,7 @@ class Style:
     lit_color: str
     pyruvylation_color: str
     acetylation_color: str
+    sgnh_domain_color: str
     gray_color: str
     both_color: str
 
@@ -42,6 +43,7 @@ class Config:
             lit_color=s.get("lit_color", "#d62728"),
             pyruvylation_color=s.get("pyruvylation_color", "#4f81bd"),
             acetylation_color=s.get("acetylation_color", "#f2c94c"),
+            sgnh_domain_color=s.get("sgnh_domain_color", "#c9a227"),
             gray_color=s.get("gray_color", "#bfbfbf"),
             both_color=s.get("both_color", "#DC143C"),
         )

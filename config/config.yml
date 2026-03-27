@@ -16,6 +16,7 @@ style:
   lit_color: "#d62728"
   pyruvylation_color: "#3283bf"
   acetylation_color: "#d45515"
+  sgnh_domain_color: "#c9a227"
   both_color: "#7A3FD4"
   gray_color: "#bfbfbf"
 

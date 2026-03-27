@@ -158,6 +158,27 @@ The default style follows `year.png` (`plot_cumulative_structures`).
 
 ---
 
+## Run flags
+
+Both `analysis/chapterX/main.py` and `figures/chapterX/main.py` may contain a **run flags block** at the top, just below the global variable declarations. These are plain Python booleans that toggle expensive or optional steps without touching `config.yml`.
+
+```python
+# ---------------------------------------------------------------------------
+# Run flags — toggle steps without modifying config.yml
+# When ON: always executes and overwrites existing files.
+# ---------------------------------------------------------------------------
+RUN_PROPHAGE_BLAST      = False   # analysis/chapter2/main.py
+PLOT_ALIGNMENT_PROFILES = False   # figures/chapter2/main.py
+RENDER_PHANDANGO        = True    # figures/chapter2/main.py
+```
+
+Convention:
+- **ON** (`True`) → step always runs and **overwrites** any existing output files.
+- **OFF** (`False`) → step is skipped; downstream steps that depend only on the output files (not the computation itself) still run using whatever files already exist.
+- Flags live in `main.py` only — never in `lib/` modules or `config.yml`.
+
+---
+
 ## Imports within lib/
 
 Modules inside `lib/` import each other using plain names (e.g. `from ktypes_base import BaseKTypeAPI`). This works because `main.py` inserts `lib/` into `sys.path` before importing.
@@ -175,6 +196,7 @@ Scripts must be run in the appropriate conda environment:
 | Script | Environment |
 |--------|-------------|
 | Most scripts | `conda run -n jkoszucki python main.py` |
+| Structure rendering script | `conda run -n pymol python main.py` |
 | `other/klocus_extraction/` (requires Kaptive v3) | `conda run -n kaptive python main.py` |
 
 ---

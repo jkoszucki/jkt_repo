@@ -2,12 +2,14 @@
 Select best GWAS predictors per K-locus and annotate with representative sequences.
 
 Pipeline:
-1. Load pyseer_hits_all.tsv
-2. Filter: precision >= 0.8
-3. For each locus, retain the single (PC, version) with highest F1 * MCC
-4. Filter: F1 >= 0.5 and MCC >= 0.5
+1. Load HHSEARCH annotation files; identify (version, PC) with tcov >= 0.10
+   and reported_topology_PC == 'SGNH hydrolase'
+2. Load pyseer_hits_all.tsv; filter precision >= 0.6
+3. Inner-join with SGNH-qualified (version, PC) pairs
+4. For each locus, retain the single (PC, version) with highest F1_score
 5. Map representative sequence (first sequence of alignment FASTA) per (PC, version)
 6. Write best_predictors.csv
+7. Collect all hhsearch rows for selected (version, PC) pairs; write best_predictors_functions.tsv
 """
 
 import pandas as pd
@@ -24,38 +26,71 @@ def _read_first_fasta(fasta_path: Path) -> tuple[str, str]:
             line = line.rstrip()
             if line.startswith(">"):
                 if found:
-                    break  # second record — stop
-                protein_id = line[1:]  # strip leading ">"
+                    break
+                protein_id = line[1:]
                 found = True
             elif found:
                 seq_lines.append(line)
     return protein_id, "".join(seq_lines)
 
 
-def select_best_predictors(table_path: Path, mmseqs_dir: Path, output_dir: Path) -> pd.DataFrame:
+def _load_sgnh_pcs(hhsearch_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Load all clustering-level annotation files.
+
+    Returns:
+        sgnh_pcs:  (version, PC) pairs with tcov >= 0.10 and SGNH hydrolase fold
+        all_hits:  full annotation table across all clustering levels
+    """
+    dfs = []
+    for version_dir in sorted(hhsearch_dir.iterdir()):
+        tsv = version_dir / "clusters_functions.tsv"
+        if not tsv.exists():
+            continue
+        df = pd.read_csv(tsv, sep="\t")
+        dfs.append(df)
+
+    all_hits = pd.concat(dfs, ignore_index=True)
+    print(f"  {len(all_hits):,} annotation rows loaded across {len(dfs)} clustering levels.")
+
+    sgnh = all_hits[
+        (all_hits["tcov"] >= 0.10) &
+        (all_hits["reported_topology_PC"] == "SGNH hydrolase")
+    ][["version", "PC"]].drop_duplicates()
+    print(f"  {len(sgnh):,} unique (version, PC) pairs with SGNH hydrolase and tcov >= 10%.")
+    return sgnh, all_hits
+
+
+def select_best_predictors(
+    table_path: Path,
+    mmseqs_dir: Path,
+    hhsearch_dir: Path,
+    output_dir: Path,
+) -> pd.DataFrame:
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Loading {table_path} ...")
+    # Step 1 — identify SGNH-qualified (version, PC) pairs
+    print("Step 1: Loading SGNH hydrolase annotations ...")
+    sgnh_pcs, all_hits = _load_sgnh_pcs(hhsearch_dir)
+
+    # Step 2 — load GWAS hits, filter precision >= 0.6
+    print(f"Step 2: Loading {table_path.name} ...")
     df = pd.read_csv(table_path, sep="\t")
     print(f"  {len(df):,} rows loaded.")
+    df = df[df["precision"] >= 0.6].copy()
+    print(f"  {len(df):,} rows after precision >= 0.6.")
 
-    # Step 1 — filter precision >= 0.8
-    df = df[df["precision"] >= 0.8].copy()
-    print(f"  {len(df):,} rows after precision >= 0.8.")
+    # Step 3 — keep only SGNH-annotated PCs
+    df = df.merge(sgnh_pcs, on=["version", "PC"], how="inner")
+    print(f"  {len(df):,} rows after SGNH hydrolase filter.")
 
-    # Step 2 — score each row, pick best (PC, version) per locus
-    df["F1_MCC"] = df["F1_score"] * df["MCC"]
-    best = df.loc[df.groupby("locus")["F1_MCC"].idxmax()].copy()
-    print(f"  {len(best):,} loci after selecting best (PC, version) per locus.")
-
-    # Step 3 — filter F1 >= 0.5 and MCC >= 0.5
-    best = best[(best["F1_score"] >= 0.5) & (best["MCC"] >= 0.5)].copy()
-    print(f"  {len(best):,} loci after F1 >= 0.5 and MCC >= 0.5.")
-
+    # Step 4 — pick highest F1_score per locus (across all clustering levels)
+    best = df.loc[df.groupby("locus")["F1_score"].idxmax()].copy()
     best = best.sort_values("locus").reset_index(drop=True)
+    print(f"  {len(best):,} loci after selecting best F1 per locus.")
 
-    # Step 4 — map representative sequences
-    print("Mapping representative sequences ...")
+    # Step 5 — map representative sequences
+    print("Step 5: Mapping representative sequences ...")
     protein_ids, sequences, missing = [], [], 0
     for _, row in best.iterrows():
         fasta_path = mmseqs_dir / row["version"] / "alignments" / f"{row['PC']}.fasta"
@@ -76,5 +111,18 @@ def select_best_predictors(table_path: Path, mmseqs_dir: Path, output_dir: Path)
     out_path = output_dir / "best_predictors.csv"
     best.to_csv(out_path, index=False)
     print(f"Saved → {out_path}")
+
+    # Step 7 — dump all hhsearch rows for the selected (version, PC) pairs
+    #           drop ALANDB; keep only hits with prob >= 0.70
+    print("Step 7: Exporting hhsearch annotations for best predictors ...")
+    selector = best[["version", "PC"]].drop_duplicates()
+    best_functions = all_hits.merge(selector, on=["version", "PC"], how="inner")
+    best_functions = best_functions[
+        (best_functions["db"] != "ALANDB") &
+        (best_functions["prob"] >= 0.70)
+    ]
+    func_path = output_dir / "best_predictors_functions.tsv"
+    best_functions.to_csv(func_path, sep="\t", index=False)
+    print(f"  {len(best_functions):,} rows → {func_path}")
 
     return best

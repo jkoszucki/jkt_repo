@@ -22,8 +22,10 @@ Computes all-vs-all weighted gene repertoire relatedness (wGRR) for 3,911 *Klebs
 
 | Path | Description |
 |------|-------------|
-| `output_dir/chapter2/grr_results.csv` | Pairwise wGRR table (columns: sample1, sample2, wgrr, grr_sum, genes1, genes2, bbh, min35, min80) |
-| `output_dir/chapter2/grr_workdir/` | Intermediate files (faa/, BLAST DB, blast TSV); safe to delete once `grr_results.csv` exists |
+| `input_dir/gwas/grr_results.csv` | Pairwise wGRR table (columns: sample1, sample2, wgrr, grr_sum, genes1, genes2, bbh, min35, min80) |
+| `output_dir/grr_workdir/` | Intermediate files (faa/, BLAST DB, blast TSV); safe to delete once `grr_results.csv` exists |
+
+`grr_results.csv` is written to `input_dir/gwas/` rather than `output_dir` because it serves as raw input for downstream analysis — the same convention used for `4_K_LOCI/`.
 
 ## Estimated runtime (Apple Silicon, 8 threads)
 
