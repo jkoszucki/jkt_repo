@@ -5,4 +5,5 @@
 *.pyd
 __pycache__/
 *prev*
-scripts/figures/chapter2/plots/ktypes_structures*
+scripts/figures/*/plots/ktypes_structures*
+scripts/figures/chapter*/bg-*
