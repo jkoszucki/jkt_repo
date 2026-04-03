@@ -1,10 +1,6 @@
 paths:
   input_dir:  /Users/januszkoszucki/Projects/thesis-claude/data/input
-  output_dir: /Users/januszkoszucki/Projects/thesis-claude/data/output/analysis
-  gwas_dir: /Users/januszkoszucki/MGG Dropbox/Projects/kleb-prophage-div/2025-02-12_KLEBDATA_LIGHT
-
-analysis:
-  network_cutoff: 0.5
+  output_dir: /Users/januszkoszucki/Projects/thesis-claude/data/output
 
 style:
   dpi: 300
@@ -19,4 +15,8 @@ style:
   sgnh_domain_color: "#c9a227"
   both_color: "#7A3FD4"
   gray_color: "#bfbfbf"
+  # Chapter 2 ECOD topology colours (used in Figure 1A scatter)
+  no_ecod_color: "#ffffff"          # white fill, gray border — no ECOD hit
+  ssrbh_color: "#2ca02c"            # green — single-stranded right-handed β-helix (tail fibers / Pectin-lyase like in ECOD)
+  sslbh_color: "#9467bd"            # purple — single-stranded left-handed β-helix (acetyltransferases)
 

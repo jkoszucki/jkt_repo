@@ -23,19 +23,19 @@ from mw_hist import plot_mw_hist
 
 def main() -> None:
     cfg = Config()
-    chapter3_output_dir = cfg.output_dir / "chapter3"
-    chapter2_dir = Path(__file__).resolve().parent
+    analysis_output_dir = cfg.output_dir / "cps-structures"
+    figures_dir = Path(__file__).resolve().parent
 
-    processed_csv = chapter3_output_dir / "ktypes.csv"
-    similarity_csv = chapter3_output_dir / "ktypes_sim.csv"
-    modifications_csv = chapter3_output_dir / "ktypes_modifications.csv"
+    processed_csv = analysis_output_dir / "ktypes.csv"
+    similarity_csv = analysis_output_dir / "ktypes_sim.csv"
+    modifications_csv = analysis_output_dir / "ktypes_modifications.csv"
 
-    plots_dir = chapter2_dir / "plots"
+    plots_dir = figures_dir / "plots"
     plots_dir.mkdir(parents=True, exist_ok=True)
 
     ### DRAW K-TYPE STRUCTURES (checkpoint: skip already generated)
     drawer = KTypeStructureDrawer(
-        output_dir=chapter2_dir,
+        output_dir=figures_dir,
         processed_csv=processed_csv,
         modifications_csv=modifications_csv,
         plots_subdir="plots/ktypes_structures",
